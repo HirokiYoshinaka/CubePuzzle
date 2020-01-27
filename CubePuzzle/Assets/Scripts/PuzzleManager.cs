@@ -18,6 +18,17 @@ public class PuzzleManager : MonoBehaviour
     {
         White, Orange, Red, Green, Yellow, Blue, MAX
     }
+    // 色定義
+    readonly Color[] colorPattern = new Color[6]
+    {
+        //        R     G     B
+        new Color(1.0f, 1.0f, 1.0f),   // White
+        new Color(1.0f, 0.5f, 0.1f),   // Orange
+        new Color(1.0f, 0.0f, 0.0f),   // Red
+        new Color(0.0f, 1.0f, 0.0f),   // Green
+        new Color(1.0f, 1.0f, 0.0f),   // Yellow
+        new Color(0.0f, 0.0f, 1.0f),   // Blue
+    };
 
     // Start is called before the first frame update
     void Start()
