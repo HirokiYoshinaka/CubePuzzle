@@ -54,8 +54,8 @@ public class PuzzleManager : MonoBehaviour
                 {
                     // Cubeを生成して
                     var cube = Instantiate(cubePrefab);
-                    // 位置決め
-                    cube.transform.position = new Vector3(x, y, z);
+                    // 位置決め、中心(x,y,z)=(1,1,1)がnew Vector3(0,0,0)になる
+                    cube.transform.position = new Vector3(x - 1, y - 1, z - 1);
                     // 配列に追加
                     cubes[x, y, z] = cube;
                     // puzzleの子とする
