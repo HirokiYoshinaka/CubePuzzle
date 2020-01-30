@@ -142,7 +142,6 @@ public class PuzzleManager : MonoBehaviour
         CreateCube();
         InitCubeData();
         InitRenderer();
-        Rotation(RotationType.BackLeft);
         DrawData();
     }
 
@@ -165,13 +164,20 @@ public class PuzzleManager : MonoBehaviour
         BackRight,          // 背面右回転
         BackLeft,           // 背面左回転
 
-        // 中心を軸とするものは6方向考えられる
+        /// <summary>
+        /// 中心を軸としたものは６通り
+        ///  ／T＼
+        /// |＼ ／|
+        /// |L | F|
+        ///  ＼|／
+        /// と置いて見たときに
+        /// </summary>
         CenterRightForward, // ↘   手前に右回転
+        CenterLeftBack,     // ↖   奥側に左回転（RFの逆
         CenterLeftForward,  // ↙   手前に左回転
-        CenterRightBack,    // ↗   奥側に右回転
-        CenterLeftBack,     // ↖   奥側に左回転
+        CenterRightBack,    // ↗   奥側に右回転（LFの逆
         CenterRightSlice,   // →  平行に右回転
-        CenterLeftSlice,    // ←  平行に左回転
+        CenterLeftSlice,    // ←  平行に左回転（RSの逆
     }
 
     /// <summary>
@@ -181,6 +187,7 @@ public class PuzzleManager : MonoBehaviour
     void Rotation(RotationType rotationType)
     {
         // テーブルをディープコピー（と言っても一度intにキャストしてenumにキャストし直すだけでOK
+        // ２回キャストでの値コピーはうっかり冗長キャストとして修正する人がいそうで少し怖い、他の方法探したほうが良いかも？
         SixColors[,,] workTable = new SixColors[(int)SixSides.MAX, cubeLength, cubeLength];
         for (int side = 0; side < (int)SixSides.MAX; side++)
             for (int i = 0; i < cubeLength; i++)
@@ -188,6 +195,7 @@ public class PuzzleManager : MonoBehaviour
                     workTable[side, i, j] = (SixColors)(int)dataTable[side, i, j];
         switch (rotationType)
         {
+            // {.... break;}の形に統一したのは単にアウトラインの折りたたみを使いたいだけです
             case RotationType.TopRight:
                 {
                     // Top面を右回転
@@ -381,19 +389,89 @@ public class PuzzleManager : MonoBehaviour
                     break;
                 }
             case RotationType.CenterRightForward:
-                break;
-            case RotationType.CenterLeftForward:
-                break;
-            case RotationType.CenterRightBack:
-                break;
+                {
+                    // ↘   手前に右回転
+                    // 側面の移動のみ行う
+                    for (int i = 0; i < cubeLength; i++)
+                    {
+                        workTable[(int)SixSides.Top, i, 1] = dataTable[(int)SixSides.Back, 2 - i, 1];
+                        workTable[(int)SixSides.Back, 2 - i, 1] = dataTable[(int)SixSides.Bottom, i, 1];
+                        workTable[(int)SixSides.Bottom, i, 1] = dataTable[(int)SixSides.Front, i, 1];
+                        workTable[(int)SixSides.Front, i, 1] = dataTable[(int)SixSides.Top, i, 1];
+                    }
+                    break;
+                }
             case RotationType.CenterLeftBack:
-                break;
+                {
+                    // ↖   奥側に左回転（RFの逆
+                    // 側面の移動のみ行う
+                    for (int i = 0; i < cubeLength; i++)
+                    {
+                        workTable[(int)SixSides.Back, 2 - i, 1] = dataTable[(int)SixSides.Top, i, 1];
+                        workTable[(int)SixSides.Bottom, i, 1] = dataTable[(int)SixSides.Back, 2 - i, 1];
+                        workTable[(int)SixSides.Front, i, 1] = dataTable[(int)SixSides.Bottom, i, 1];
+                        workTable[(int)SixSides.Top, i, 1] = dataTable[(int)SixSides.Front, i, 1];
+                    }
+                    break;
+                }
+            case RotationType.CenterLeftForward:
+                {
+                    // ↙   手前に左回転
+                    // 側面の移動のみ行う
+                    for (int i = 0; i < cubeLength; i++)
+                    {
+                        workTable[(int)SixSides.Left, 2 - i, 1] = dataTable[(int)SixSides.Top, 1, i];
+                        workTable[(int)SixSides.Top, 1, i] = dataTable[(int)SixSides.Right, i, 1];
+                        workTable[(int)SixSides.Right, i, 1] = dataTable[(int)SixSides.Bottom, 1, 2 - i];
+                        workTable[(int)SixSides.Bottom, 1, 2 - i] = dataTable[(int)SixSides.Left, 2 - i, 1];
+                    }
+                    break;
+                }
+            case RotationType.CenterRightBack:
+                {
+                    // ↗   奥側に右回転（LFの逆
+                    // 側面の移動のみ行う
+                    for (int i = 0; i < cubeLength; i++)
+                    {
+                        workTable[(int)SixSides.Top, 1, i] = dataTable[(int)SixSides.Left, 2 - i, 1];
+                        workTable[(int)SixSides.Right, i, 1] = dataTable[(int)SixSides.Top, 1, i];
+                        workTable[(int)SixSides.Bottom, 1, 2 - i] = dataTable[(int)SixSides.Right, i, 1];
+                        workTable[(int)SixSides.Left, 2 - i, 1] = dataTable[(int)SixSides.Bottom, 1, 2 - i];
+                    }
+                    break;
+                }
             case RotationType.CenterRightSlice:
-                break;
+                {
+                    // →  平行に右回転
+                    // 側面の移動のみ行う
+                    for (int i = 0; i < cubeLength; i++)
+                    {
+                        workTable[(int)SixSides.Front, 1, i] = dataTable[(int)SixSides.Left, 1, i];
+                        workTable[(int)SixSides.Left, 1, i] = dataTable[(int)SixSides.Back, 1, i];
+                        workTable[(int)SixSides.Back, 1, i] = dataTable[(int)SixSides.Right, 1, i];
+                        workTable[(int)SixSides.Right, 1, i] = dataTable[(int)SixSides.Front, 1, i];
+                    }
+                    break;
+                }
             case RotationType.CenterLeftSlice:
-                break;
+                {
+                    // ←  平行に左回転（RSの逆
+                    // 側面の移動のみ行う
+                    for (int i = 0; i < cubeLength; i++)
+                    {
+                        workTable[(int)SixSides.Left, 1, i] = dataTable[(int)SixSides.Front, 1, i];
+                        workTable[(int)SixSides.Back, 1, i] = dataTable[(int)SixSides.Left, 1, i];
+                        workTable[(int)SixSides.Right, 1, i] = dataTable[(int)SixSides.Back, 1, i];
+                        workTable[(int)SixSides.Front, 1, i] = dataTable[(int)SixSides.Right, 1, i];
+                    }
+                    break;
+                }
         }
+        // 作業の終了したデータをコピー（もういじらないので参照コピーでOK
+        // 元のdataTableはGC行き？少し無駄が多いような気はする
         dataTable = workTable;
+        // データを反映
+        DrawData();
     }
 
     // Update is called once per frame
