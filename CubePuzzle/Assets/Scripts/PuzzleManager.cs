@@ -142,6 +142,8 @@ public class PuzzleManager : MonoBehaviour
         CreateCube();
         InitCubeData();
         InitRenderer();
+        // オブジェクト回転初期化の呼び出し
+        GetComponent<ObjectRotation>().InitRotation();
         DrawData();
     }
 
