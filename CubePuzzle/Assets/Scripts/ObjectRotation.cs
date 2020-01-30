@@ -7,6 +7,7 @@ using UnityEngine;
 /// </summary>
 public class ObjectRotation : MonoBehaviour
 {
+    // 回転の速度を指定します。
     public float rotationalSpeed = 180;
 
     /// <summary>
