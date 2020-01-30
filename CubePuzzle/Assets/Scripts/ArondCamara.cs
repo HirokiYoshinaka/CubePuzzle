@@ -15,11 +15,11 @@ public class ArondCamara : MonoBehaviour
     void Update()
     {
         // 左右回転
-        // Dのみ
+        // Dのみ入力
         if (Input.GetKey(KeyCode.D) &&
             !Input.GetKey(KeyCode.A))
             transform.RotateAround(gazingPoint, Vector3.up, rotationalSpeed * Time.deltaTime);
-        // Aのみ
+        // Aのみ入力
         else if (!Input.GetKey(KeyCode.D) &&
             Input.GetKey(KeyCode.A))
             transform.RotateAround(gazingPoint, Vector3.up, -rotationalSpeed * Time.deltaTime);
@@ -37,14 +37,15 @@ public class ArondCamara : MonoBehaviour
         /// つまり三角関数を用いてこういうこと
         axis.x = +Mathf.Cos(rad);
         axis.z = -Mathf.Sin(rad);
-
-        // Wのみ
+        // 同じキーで同じ方向に回し続けられるようにする
+        var sign = (0 <= rot && rot < 180) ? 1 : -1;
+        // Wのみ入力
         if (Input.GetKey(KeyCode.W) &&
             !Input.GetKey(KeyCode.S))
-            transform.RotateAround(gazingPoint, axis, rotationalSpeed * Time.deltaTime);
-        // Sのみ
+            transform.RotateAround(gazingPoint, axis, sign * rotationalSpeed * Time.deltaTime);
+        // Sのみ入力
         else if (!Input.GetKey(KeyCode.W) &&
             Input.GetKey(KeyCode.S))
-            transform.RotateAround(gazingPoint, axis, -rotationalSpeed * Time.deltaTime);
+            transform.RotateAround(gazingPoint, axis, sign * -rotationalSpeed * Time.deltaTime);
     }
 }
