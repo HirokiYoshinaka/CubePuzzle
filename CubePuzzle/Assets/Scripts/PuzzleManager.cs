@@ -138,9 +138,15 @@ public class PuzzleManager : MonoBehaviour
                         = colorPattern[(int)dataTable[side, i, j]];
     }
 
+    // SE関連
+    AudioSource audioSource = null;
+    AudioClip rotationSE = null;
+
     // Start is called before the first frame update
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
+        rotationSE = Resources.Load("Sounds/go-piece1") as AudioClip;
         CreateCube();
         InitCubeData();
         InitRenderer();
@@ -184,7 +190,8 @@ public class PuzzleManager : MonoBehaviour
         CenterLeftSlice,    // ←  平行に左回転（RSの逆
     }
 
-
+    // 回転中は操作できないようにしておく
+    bool rotatable = true;
 
     /// <summary>
     /// Cubeの回転を行います
@@ -192,6 +199,8 @@ public class PuzzleManager : MonoBehaviour
     /// <param name="rotationType">回転軸と方向の指定</param>
     IEnumerator Rotation(RotationType rotationType)
     {
+        // 操作ロック
+        rotatable = false;
         // テーブルをディープコピー（と言っても一度intにキャストしてenumにキャストし直すだけでOK
         // ２回キャストでの値コピーはうっかり冗長キャストとして修正する人がいそうで少し怖い、他の方法探したほうが良いかも？
         SixColors[,,] workTable = new SixColors[(int)SixSides.MAX, cubeLength, cubeLength];
@@ -202,7 +211,7 @@ public class PuzzleManager : MonoBehaviour
         // 今回は回転角度は90度以外ありえない
         const float deg = 90f;
         // 回転にかかる時間の指定
-        const float duration = 0.5f;
+        const float duration = 0.2f;
         float _time = 0;
         switch (rotationType)
         {
@@ -967,8 +976,11 @@ public class PuzzleManager : MonoBehaviour
         // 作業の終了したデータをコピー（もういじらないので参照コピーでOK
         // 元のdataTableはGC行き？少し無駄が多いような気はする
         dataTable = workTable;
+        audioSource.PlayOneShot(rotationSE);
         // データを反映
         DrawData();
+        // 操作可能に
+        rotatable = true;
     }
 
     // キャッシュ用
@@ -977,6 +989,9 @@ public class PuzzleManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // 操作ロック
+        if (!rotatable)
+            return;
         // クリックされたとき
         if (Input.GetMouseButtonDown(0))
         {
