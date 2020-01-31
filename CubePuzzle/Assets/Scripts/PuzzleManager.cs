@@ -507,6 +507,10 @@ public class PuzzleManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 入力に応じた回転を行います。
+    /// </summary>
+    /// <param name="clickEnd"></param>
     void InputRotation(GameObject clickEnd)
     {
         // 同じところで離していたら回転させない
@@ -533,12 +537,11 @@ public class PuzzleManager : MonoBehaviour
         // それぞれの面の名前を取得
         var startSideName = clickStart.name;
         var endSideName = clickEnd.name;
-        //Debug.Log(startSideName);
-        //Debug.Log(endSideName);
-
+        // 決定した回転タイプを入れる、どれにも決定しなければ（斜めなど）エラー値-1で処理
         int rotationType = -1;
         // start面とend面それぞれについて分岐する（しか思いつきませんでした
         // if文に整理し直す？→多分自分でも読んでてしんどい＆法則性を整理するのが大変そう
+        // 前提として裏側はendに選択されないとしている
         switch (startSideName)
         {
             case "Top":
@@ -572,27 +575,27 @@ public class PuzzleManager : MonoBehaviour
                             }
                         case "Right":
                             rotationType =
-                                    (startIndex.z == 0) ? (int)RotationType.FrontRight :
-                                    (startIndex.z == 1) ? (int)RotationType.CenterRightBack :
-                                    (int)RotationType.BackLeft;
+                                        (startIndex.z == 0) ? (int)RotationType.FrontRight :
+                                        (startIndex.z == 1) ? (int)RotationType.CenterRightBack :
+                                        (int)RotationType.BackLeft;
                             break;
                         case "Left":
                             rotationType =
-                                    (startIndex.z == 0) ? (int)RotationType.FrontLeft :
-                                    (startIndex.z == 1) ? (int)RotationType.CenterLeftForward :
-                                    (int)RotationType.BackRight;
+                                        (startIndex.z == 0) ? (int)RotationType.FrontLeft :
+                                        (startIndex.z == 1) ? (int)RotationType.CenterLeftForward :
+                                        (int)RotationType.BackRight;
                             break;
                         case "Front":
                             rotationType =
-                                    (startIndex.x == 0) ? (int)RotationType.LeftLeft :
-                                    (startIndex.x == 1) ? (int)RotationType.CenterLeftBack :
-                                    (int)RotationType.RightRight;
-                            break;
+                                        (startIndex.x == 0) ? (int)RotationType.LeftRight :
+                                        (startIndex.x == 1) ? (int)RotationType.CenterRightForward :
+                                        (int)RotationType.RightLeft;
+                            break;     
                         case "Back":
                             rotationType =
-                                   (startIndex.x == 0) ? (int)RotationType.LeftRight :
-                                   (startIndex.x == 1) ? (int)RotationType.CenterRightForward :
-                                   (int)RotationType.RightLeft;
+                                        (startIndex.x == 0) ? (int)RotationType.LeftLeft :
+                                        (startIndex.x == 1) ? (int)RotationType.CenterLeftBack :
+                                        (int)RotationType.RightRight;
                             break;
                     }
                     break;
@@ -626,55 +629,261 @@ public class PuzzleManager : MonoBehaviour
                                         (int)RotationType.RightRight;
                                 break;
                             }
-                            // Right,LeftはTopの逆
+                        // Right,LeftはTopの逆
                         case "Right":
                             rotationType =
-                                    (startIndex.z == 0) ? (int)RotationType.FrontLeft :
-                                    (startIndex.z == 1) ? (int)RotationType.CenterLeftForward :
-                                    (int)RotationType.BackRight;
+                                        (startIndex.z == 0) ? (int)RotationType.FrontLeft :
+                                        (startIndex.z == 1) ? (int)RotationType.CenterLeftForward :
+                                        (int)RotationType.BackRight;
                             break;
                         case "Left":
                             rotationType =
-                                    (startIndex.z == 0) ? (int)RotationType.FrontRight :
-                                    (startIndex.z == 1) ? (int)RotationType.CenterRightBack :
-                                    (int)RotationType.BackLeft;        
+                                        (startIndex.z == 0) ? (int)RotationType.FrontRight :
+                                        (startIndex.z == 1) ? (int)RotationType.CenterRightBack :
+                                        (int)RotationType.BackLeft;
                             break;
-                            // Front,BackはTopと同じ
+                        // Front,BackはTopと同じ
                         case "Front":
                             rotationType =
-                                    (startIndex.x == 0) ? (int)RotationType.LeftLeft :
-                                    (startIndex.x == 1) ? (int)RotationType.CenterLeftBack :
-                                    (int)RotationType.RightRight;
+                                        (startIndex.x == 0) ? (int)RotationType.LeftLeft :
+                                        (startIndex.x == 1) ? (int)RotationType.CenterLeftBack :
+                                        (int)RotationType.RightRight;
                             break;
                         case "Back":
                             rotationType =
-                                   (startIndex.x == 0) ? (int)RotationType.LeftRight :
-                                   (startIndex.x == 1) ? (int)RotationType.CenterRightForward :
-                                   (int)RotationType.RightLeft;
+                                       (startIndex.x == 0) ? (int)RotationType.LeftRight :
+                                       (startIndex.x == 1) ? (int)RotationType.CenterRightForward :
+                                       (int)RotationType.RightLeft;
                             break;
                     }
                     break;
                 }
             case "Right":
-                break;
+                {
+                    switch (endSideName)
+                    {
+                        case "Right":
+                            {
+                                if (difIndex == new Vector3Int(0, 1, 0))
+                                    rotationType =
+                                        (startIndex.z == 0) ? (int)RotationType.FrontLeft :
+                                        (startIndex.z == 1) ? (int)RotationType.CenterLeftForward :
+                                        (int)RotationType.BackRight;
+                                else if (difIndex == new Vector3Int(0, -1, 0))
+                                    rotationType =
+                                        (startIndex.z == 0) ? (int)RotationType.FrontRight :
+                                        (startIndex.z == 1) ? (int)RotationType.CenterRightBack :
+                                        (int)RotationType.BackLeft;
+                                else if (difIndex == new Vector3Int(0, 0, 1))
+                                    rotationType =
+                                        (startIndex.y == 0) ? (int)RotationType.BottomLeft :
+                                        (startIndex.y == 1) ? (int)RotationType.CenterRightSlice :
+                                        (int)RotationType.TopLeft;
+                                else if (difIndex == new Vector3Int(0, 0, -1))
+                                    rotationType =
+                                        (startIndex.y == 0) ? (int)RotationType.BottomRight :
+                                        (startIndex.y == 1) ? (int)RotationType.CenterLeftSlice :
+                                        (int)RotationType.TopRight;
+                                break;
+                            }
+                        case "Top":
+                            rotationType =
+                                        (startIndex.z == 0) ? (int)RotationType.FrontLeft :
+                                        (startIndex.z == 1) ? (int)RotationType.CenterLeftForward :
+                                        (int)RotationType.BackRight;
+                            break;
+                        case "Bottom":
+                            rotationType =
+                                        (startIndex.z == 0) ? (int)RotationType.FrontRight :
+                                        (startIndex.z == 1) ? (int)RotationType.CenterRightBack :
+                                        (int)RotationType.BackLeft;
+                            break;
+                        case "Front":
+                            rotationType =
+                                        (startIndex.y == 0) ? (int)RotationType.BottomRight :
+                                        (startIndex.y == 1) ? (int)RotationType.CenterLeftSlice :
+                                        (int)RotationType.TopRight;
+                            break;
+                        case "Back":
+                            rotationType =
+                                        (startIndex.y == 0) ? (int)RotationType.BottomLeft :
+                                        (startIndex.y == 1) ? (int)RotationType.CenterRightSlice :
+                                        (int)RotationType.TopLeft;
+                            break;
+                    }
+                    break;
+                }
             case "Left":
-                break;
+                {
+                    // Rightをひっくり返しただけ
+                    switch (endSideName)
+                    {
+                        case "Left":
+                            {
+                                if (difIndex == new Vector3Int(0, 1, 0))
+                                    rotationType =
+                                        (startIndex.z == 0) ? (int)RotationType.FrontRight :
+                                        (startIndex.z == 1) ? (int)RotationType.CenterRightBack :
+                                        (int)RotationType.BackLeft;
+                                else if (difIndex == new Vector3Int(0, -1, 0))
+                                    rotationType =
+                                        (startIndex.z == 0) ? (int)RotationType.FrontLeft :
+                                        (startIndex.z == 1) ? (int)RotationType.CenterLeftForward :
+                                        (int)RotationType.BackRight;
+                                else if (difIndex == new Vector3Int(0, 0, 1))
+                                    rotationType =
+                                        (startIndex.y == 0) ? (int)RotationType.BottomRight :
+                                        (startIndex.y == 1) ? (int)RotationType.CenterLeftSlice :
+                                        (int)RotationType.TopRight;
+                                else if (difIndex == new Vector3Int(0, 0, -1))
+                                    rotationType =
+                                        (startIndex.y == 0) ? (int)RotationType.BottomLeft :
+                                        (startIndex.y == 1) ? (int)RotationType.CenterRightSlice :
+                                        (int)RotationType.TopLeft;
+                                break;
+                            }
+                        case "Top":
+                            rotationType =
+                                        (startIndex.z == 0) ? (int)RotationType.FrontRight :
+                                        (startIndex.z == 1) ? (int)RotationType.CenterRightBack :
+                                        (int)RotationType.BackLeft;
+                            break;
+                        case "Bottom":
+                            rotationType =
+                                       (startIndex.z == 0) ? (int)RotationType.FrontLeft :
+                                       (startIndex.z == 1) ? (int)RotationType.CenterLeftForward :
+                                       (int)RotationType.BackRight;
+                            break;
+                        case "Front":
+                            rotationType =
+                                        (startIndex.y == 0) ? (int)RotationType.BottomLeft :
+                                        (startIndex.y == 1) ? (int)RotationType.CenterRightSlice :
+                                        (int)RotationType.TopLeft;
+                            break;
+                        case "Back":
+                            rotationType =
+                                        (startIndex.y == 0) ? (int)RotationType.BottomRight :
+                                        (startIndex.y == 1) ? (int)RotationType.CenterLeftSlice :
+                                        (int)RotationType.TopRight;
+                            break;
+                    }
+                    break;
+                }
             case "Front":
-                break;
+                {
+                    switch (endSideName)
+                    {
+                        case "Front":
+                            {
+                                if (difIndex == new Vector3Int(1, 0, 0))
+                                    rotationType =
+                                        (startIndex.y == 0) ? (int)RotationType.BottomLeft :
+                                        (startIndex.y == 1) ? (int)RotationType.CenterRightSlice :
+                                        (int)RotationType.TopLeft;
+                                else if (difIndex == new Vector3Int(-1, 0, 0))
+                                    rotationType =
+                                        (startIndex.y == 0) ? (int)RotationType.BottomRight :
+                                        (startIndex.y == 1) ? (int)RotationType.CenterLeftSlice :
+                                        (int)RotationType.TopRight;
+                                else if (difIndex == new Vector3Int(0, 1, 0))
+                                    rotationType =
+                                        (startIndex.x == 0) ? (int)RotationType.LeftLeft :
+                                        (startIndex.x == 1) ? (int)RotationType.CenterLeftBack :
+                                        (int)RotationType.RightRight;
+                                else if (difIndex == new Vector3Int(0, -1, 0))
+                                    rotationType =
+                                        (startIndex.x == 0) ? (int)RotationType.LeftRight :
+                                        (startIndex.x == 1) ? (int)RotationType.CenterRightForward :
+                                        (int)RotationType.RightLeft;
+                                break;
+                            }
+                        case "Top":
+                            rotationType =
+                                        (startIndex.x == 0) ? (int)RotationType.LeftLeft :
+                                        (startIndex.x == 1) ? (int)RotationType.CenterLeftBack :
+                                        (int)RotationType.RightRight;
+                            break;
+                        case "Bottom":
+                            rotationType =
+                                        (startIndex.x == 0) ? (int)RotationType.LeftRight :
+                                        (startIndex.x == 1) ? (int)RotationType.CenterRightForward :
+                                        (int)RotationType.RightLeft;
+                            break;
+                        case "Right":
+                            rotationType =
+                                        (startIndex.y == 0) ? (int)RotationType.BottomLeft :
+                                        (startIndex.y == 1) ? (int)RotationType.CenterRightSlice :
+                                        (int)RotationType.TopLeft;
+                            break;
+                        case "Left":
+                            rotationType =
+                                        (startIndex.y == 0) ? (int)RotationType.BottomRight :
+                                        (startIndex.y == 1) ? (int)RotationType.CenterLeftSlice :
+                                        (int)RotationType.TopRight;
+                            break;
+                    }
+                    break;
+                }
             case "Back":
-                break;
+                {
+                    // Frontをひっくり返しただけ
+                    switch (endSideName)
+                    {
+                        case "Back":
+                            {
+                                if (difIndex == new Vector3Int(1, 0, 0))
+                                    rotationType =
+                                        (startIndex.y == 0) ? (int)RotationType.BottomRight :
+                                        (startIndex.y == 1) ? (int)RotationType.CenterLeftSlice :
+                                        (int)RotationType.TopRight;                                
+                                else if (difIndex == new Vector3Int(-1, 0, 0))
+                                    rotationType =
+                                        (startIndex.y == 0) ? (int)RotationType.BottomLeft :
+                                        (startIndex.y == 1) ? (int)RotationType.CenterRightSlice :
+                                        (int)RotationType.TopLeft;
+                                else if (difIndex == new Vector3Int(0, 1, 0))
+                                    rotationType =
+                                        (startIndex.x == 0) ? (int)RotationType.LeftRight :
+                                        (startIndex.x == 1) ? (int)RotationType.CenterRightForward :
+                                        (int)RotationType.RightLeft;                               
+                                else if (difIndex == new Vector3Int(0, -1, 0))
+                                    rotationType =
+                                       (startIndex.x == 0) ? (int)RotationType.LeftLeft :
+                                       (startIndex.x == 1) ? (int)RotationType.CenterLeftBack :
+                                       (int)RotationType.RightRight;
+                                break;
+                            }
+                        case "Top":
+                            rotationType =
+                                        (startIndex.x == 0) ? (int)RotationType.LeftRight :
+                                        (startIndex.x == 1) ? (int)RotationType.CenterRightForward :
+                                        (int)RotationType.RightLeft;
+                            break;
+                        case "Bottom":
+                            rotationType =
+                                        (startIndex.x == 0) ? (int)RotationType.LeftLeft :
+                                        (startIndex.x == 1) ? (int)RotationType.CenterLeftBack :
+                                        (int)RotationType.RightRight;
+                            break;
+                        case "Right":
+                            rotationType =
+                                        (startIndex.y == 0) ? (int)RotationType.BottomRight :
+                                        (startIndex.y == 1) ? (int)RotationType.CenterLeftSlice :
+                                        (int)RotationType.TopRight;
+                            break;
+                        case "Left":
+                            rotationType =
+                                        (startIndex.y == 0) ? (int)RotationType.BottomLeft :
+                                        (startIndex.y == 1) ? (int)RotationType.CenterRightSlice :
+                                        (int)RotationType.TopLeft;
+                            break;
+                    }
+                    break;
+                }
         }
+        // 回転タイプが決定していれば回転させる
         if (rotationType != -1)
             Rotation((RotationType)rotationType);
-
-        // 角の場合名前で判断する
-        if (difIndex == new Vector3Int(0, 0, 0)) { }
-        else if (difIndex == new Vector3Int(1, 0, 0)) { }
-        else if (difIndex == new Vector3Int(-1, 0, 0)) { }
-        else if (difIndex == new Vector3Int(0, 1, 0)) { }
-        else if (difIndex == new Vector3Int(0, -1, 0)) { }
-        else if (difIndex == new Vector3Int(0, 0, 1)) { }
-        else if (difIndex == new Vector3Int(0, 0, -1)) { }
 
         // 回転させたらクリック開始キャッシュをクリア
         clickStart = null;
