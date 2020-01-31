@@ -538,6 +538,7 @@ public class PuzzleManager : MonoBehaviour
 
         int rotationType = -1;
         // start面とend面それぞれについて分岐する（しか思いつきませんでした
+        // if文に整理し直す？→多分自分でも読んでてしんどい＆法則性を整理するのが大変そう
         switch (startSideName)
         {
             case "Top":
@@ -545,41 +546,115 @@ public class PuzzleManager : MonoBehaviour
                     switch (endSideName)
                     {
                         case "Top":
-                            // 方向を判定したら軸を判定する
-                            if (difIndex == new Vector3Int(1, 0, 0))
-                                rotationType =
+                            {
+                                // 方向を判定したら軸を判定する
+                                if (difIndex == new Vector3Int(1, 0, 0))
+                                    rotationType =
+                                        (startIndex.z == 0) ? (int)RotationType.FrontRight :
+                                        (startIndex.z == 1) ? (int)RotationType.CenterRightBack :
+                                        (int)RotationType.BackLeft;
+                                else if (difIndex == new Vector3Int(-1, 0, 0))
+                                    rotationType =
+                                        (startIndex.z == 0) ? (int)RotationType.FrontLeft :
+                                        (startIndex.z == 1) ? (int)RotationType.CenterLeftForward :
+                                        (int)RotationType.BackRight;
+                                else if (difIndex == new Vector3Int(0, 0, 1))
+                                    rotationType =
+                                        (startIndex.x == 0) ? (int)RotationType.LeftLeft :
+                                        (startIndex.x == 1) ? (int)RotationType.CenterLeftBack :
+                                        (int)RotationType.RightRight;
+                                else if (difIndex == new Vector3Int(0, 0, -1))
+                                    rotationType =
+                                        (startIndex.x == 0) ? (int)RotationType.LeftRight :
+                                        (startIndex.x == 1) ? (int)RotationType.CenterRightForward :
+                                        (int)RotationType.RightLeft;
+                                break;
+                            }
+                        case "Right":
+                            rotationType =
                                     (startIndex.z == 0) ? (int)RotationType.FrontRight :
                                     (startIndex.z == 1) ? (int)RotationType.CenterRightBack :
                                     (int)RotationType.BackLeft;
-                            else if (difIndex == new Vector3Int(-1, 0, 0))
-                                rotationType =
+                            break;
+                        case "Left":
+                            rotationType =
                                     (startIndex.z == 0) ? (int)RotationType.FrontLeft :
                                     (startIndex.z == 1) ? (int)RotationType.CenterLeftForward :
                                     (int)RotationType.BackRight;
-                            else if (difIndex == new Vector3Int(0, 0, 1))
-                                rotationType =
+                            break;
+                        case "Front":
+                            rotationType =
                                     (startIndex.x == 0) ? (int)RotationType.LeftLeft :
                                     (startIndex.x == 1) ? (int)RotationType.CenterLeftBack :
                                     (int)RotationType.RightRight;
-                            else if (difIndex == new Vector3Int(0, 0, -1))
-                                rotationType =
-                                    (startIndex.x == 0) ? (int)RotationType.LeftRight :
-                                    (startIndex.x == 1) ? (int)RotationType.CenterRightForward :
-                                    (int)RotationType.RightLeft;
-                            break;
-                        case "Right":
-                            break;
-                        case "Left":
-                            break;
-                        case "Front":
                             break;
                         case "Back":
+                            rotationType =
+                                   (startIndex.x == 0) ? (int)RotationType.LeftRight :
+                                   (startIndex.x == 1) ? (int)RotationType.CenterRightForward :
+                                   (int)RotationType.RightLeft;
                             break;
                     }
                     break;
                 }
             case "Bottom":
-                break;
+                {
+                    switch (endSideName)
+                    {
+                        case "Bottom":
+                            {
+                                // Topを逆にしただけ
+                                if (difIndex == new Vector3Int(1, 0, 0))
+                                    rotationType =
+                                        (startIndex.z == 0) ? (int)RotationType.FrontLeft :
+                                        (startIndex.z == 1) ? (int)RotationType.CenterLeftForward :
+                                        (int)RotationType.BackRight;
+                                else if (difIndex == new Vector3Int(-1, 0, 0))
+                                    rotationType =
+                                        (startIndex.z == 0) ? (int)RotationType.FrontRight :
+                                        (startIndex.z == 1) ? (int)RotationType.CenterRightBack :
+                                        (int)RotationType.BackLeft;
+                                else if (difIndex == new Vector3Int(0, 0, 1))
+                                    rotationType =
+                                        (startIndex.x == 0) ? (int)RotationType.LeftRight :
+                                        (startIndex.x == 1) ? (int)RotationType.CenterRightForward :
+                                        (int)RotationType.RightLeft;
+                                else if (difIndex == new Vector3Int(0, 0, -1))
+                                    rotationType =
+                                        (startIndex.x == 0) ? (int)RotationType.LeftLeft :
+                                        (startIndex.x == 1) ? (int)RotationType.CenterLeftBack :
+                                        (int)RotationType.RightRight;
+                                break;
+                            }
+                            // Right,LeftはTopの逆
+                        case "Right":
+                            rotationType =
+                                    (startIndex.z == 0) ? (int)RotationType.FrontLeft :
+                                    (startIndex.z == 1) ? (int)RotationType.CenterLeftForward :
+                                    (int)RotationType.BackRight;
+                            break;
+                        case "Left":
+                            rotationType =
+                                    (startIndex.z == 0) ? (int)RotationType.FrontRight :
+                                    (startIndex.z == 1) ? (int)RotationType.CenterRightBack :
+                                    (int)RotationType.BackLeft;        
+                            break;
+                            // Front,BackはTopと同じ
+                        case "Front":
+                            rotationType =
+                                    (startIndex.x == 0) ? (int)RotationType.LeftLeft :
+                                    (startIndex.x == 1) ? (int)RotationType.CenterLeftBack :
+                                    (int)RotationType.RightRight;
+                            break;
+                        case "Back":
+                            rotationType =
+                                   (startIndex.x == 0) ? (int)RotationType.LeftRight :
+                                   (startIndex.x == 1) ? (int)RotationType.CenterRightForward :
+                                   (int)RotationType.RightLeft;
+                            break;
+                    }
+                    break;
+                }
             case "Right":
                 break;
             case "Left":
