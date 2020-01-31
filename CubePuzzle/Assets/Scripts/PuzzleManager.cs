@@ -156,6 +156,21 @@ public class PuzzleManager : MonoBehaviour
     }
 
     /// <summary>
+    /// ランダムにシャッフルします
+    /// </summary>
+    /// <param name="count">回転させる回数</param>
+    IEnumerator RandomShuffle(int count = 100)
+    {
+        // シャッフル中にSE再生するとさすがにうるさかったのでミュートに
+        audioSource.mute = true;
+        for (int i = 0; i < count; i++)
+            yield return StartCoroutine(
+                Rotation((RotationType)Random.Range((int)RotationType.TopRight, (int)RotationType.CenterLeftSlice + 1),
+                0.05f));
+        audioSource.mute = false;
+    }
+
+    /// <summary>
     /// 回転の中心軸と方向を指定します
     /// </summary>
     public enum RotationType
@@ -197,7 +212,8 @@ public class PuzzleManager : MonoBehaviour
     /// Cubeの回転を行います
     /// </summary>
     /// <param name="rotationType">回転軸と方向の指定</param>
-    IEnumerator Rotation(RotationType rotationType)
+    /// <param name="duration">回転にかかる時間の指定</param>
+    IEnumerator Rotation(RotationType rotationType, float duration = 0.2f)
     {
         // 操作ロック
         rotatable = false;
@@ -210,8 +226,6 @@ public class PuzzleManager : MonoBehaviour
                     workTable[side, i, j] = (SixColors)(int)dataTable[side, i, j];
         // 今回は回転角度は90度以外ありえない
         const float deg = 90f;
-        // 回転にかかる時間の指定
-        const float duration = 0.2f;
         float _time = 0;
         switch (rotationType)
         {
