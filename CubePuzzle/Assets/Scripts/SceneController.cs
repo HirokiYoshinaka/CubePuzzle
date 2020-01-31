@@ -25,12 +25,18 @@ public class SceneController : MonoBehaviour
     {
         // ESCキーが押下されたときアプリケーションを終了します。
         if (Input.GetKeyDown(KeyCode.Escape))
-        {
+            Quit();
+    }
+
+    /// <summary>
+    /// アプリケーションを終了します
+    /// </summary>
+    public void Quit()
+    {
 #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
+        UnityEditor.EditorApplication.isPlaying = false;
 #elif UNITY_STANDALONE
       UnityEngine.Application.Quit();
 #endif
-        }
     }
 }

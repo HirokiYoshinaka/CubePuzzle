@@ -39,23 +39,41 @@ public class ObjectRotation : MonoBehaviour
         // Rightのみ入力
         if (Input.GetKey(rightKey) &&
             !Input.GetKey(leftKey))
-            transform.Rotate(Vector3.up, -rotationalSpeed * Time.deltaTime, Space.World);
+            RotationRight();
         // Leftのみ入力
         else if (!Input.GetKey(rightKey) &&
             Input.GetKey(leftKey))
-            transform.Rotate(Vector3.up, rotationalSpeed * Time.deltaTime, Space.World);
-
+            RotationLeft();
         // Upのみ入力
         if (Input.GetKey(upKey) &&
             !Input.GetKey(downKey))
-            transform.Rotate(new Vector3(1, 0, 0), rotationalSpeed * Time.deltaTime, Space.World);
+            RotationUp();
         // Downのみ入力
         else if (!Input.GetKey(upKey) &&
             Input.GetKey(downKey))
-            transform.Rotate(new Vector3(1, 0, 0), -rotationalSpeed * Time.deltaTime, Space.World);
-
+            RotationDown();
         // 回転をリセット
         if (Input.GetKeyDown(resetKey))
             InitRotation();
+    }
+
+    /// <summary>
+    /// 上下左右回転（Buttonからも呼び出したいのでこのように展開
+    /// </summary>
+    public void RotationRight()
+    {
+        transform.Rotate(Vector3.up, -rotationalSpeed * Time.deltaTime, Space.World);
+    }
+    public void RotationLeft()
+    {
+        transform.Rotate(Vector3.up, rotationalSpeed * Time.deltaTime, Space.World);
+    }
+    public void RotationUp()
+    {
+        transform.Rotate(new Vector3(1, 0, 0), rotationalSpeed * Time.deltaTime, Space.World);
+    }
+    public void RotationDown()
+    {
+        transform.Rotate(new Vector3(1, 0, 0), -rotationalSpeed * Time.deltaTime, Space.World);
     }
 }
