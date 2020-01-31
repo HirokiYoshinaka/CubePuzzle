@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// パズルのデータ、ロジックの管理クラス
@@ -182,11 +184,13 @@ public class PuzzleManager : MonoBehaviour
         CenterLeftSlice,    // ←  平行に左回転（RSの逆
     }
 
+
+
     /// <summary>
     /// Cubeの回転を行います
     /// </summary>
     /// <param name="rotationType">回転軸と方向の指定</param>
-    void Rotation(RotationType rotationType)
+    IEnumerator Rotation(RotationType rotationType)
     {
         // テーブルをディープコピー（と言っても一度intにキャストしてenumにキャストし直すだけでOK
         // ２回キャストでの値コピーはうっかり冗長キャストとして修正する人がいそうで少し怖い、他の方法探したほうが良いかも？
@@ -195,6 +199,11 @@ public class PuzzleManager : MonoBehaviour
             for (int i = 0; i < cubeLength; i++)
                 for (int j = 0; j < cubeLength; j++)
                     workTable[side, i, j] = (SixColors)(int)dataTable[side, i, j];
+        // 今回は回転角度は90度以外ありえない
+        const float deg = 90f;
+        // 回転にかかる時間の指定
+        const float duration = 0.5f;
+        float _time = 0;
         switch (rotationType)
         {
             // {.... break;}の形に統一したのは単にアウトラインの折りたたみを使いたいだけです
@@ -212,6 +221,33 @@ public class PuzzleManager : MonoBehaviour
                         workTable[(int)SixSides.Right, 0, i] = dataTable[(int)SixSides.Back, 0, i];
                         workTable[(int)SixSides.Back, 0, i] = dataTable[(int)SixSides.Left, 0, i];
                     }
+                    // オブジェクトの回転アニメーション
+                    while (true)
+                    {
+                        const int y = 2;
+                        // タイム加算
+                        _time += Time.deltaTime;
+                        // アニメーションの終了
+                        if (_time > duration)
+                        {
+                            // 回転と位置をリセット
+                            for (int x = 0; x < cubeLength; x++)
+                                for (int z = 0; z < cubeLength; z++)
+                                {
+                                    cubes[x, y, z].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                                    cubes[x, y, z].transform.localPosition = new Vector3(x - 1, y - 1, z - 1);
+                                }
+                            break;
+                        }
+                        // (0,2,0)~(2,2,2)
+                        for (int x = 0; x < cubeLength; x++)
+                            for (int z = 0; z < cubeLength; z++)
+                                cubes[x, y, z].transform.RotateAround(
+                                    cubes[1, y, 1].transform.position,
+                                    transform.up,// 全体（Managerの上方向
+                                    deg / duration * Time.deltaTime);
+                        yield return null;
+                    }
                     break;
                 }
             case RotationType.TopLeft:
@@ -227,6 +263,33 @@ public class PuzzleManager : MonoBehaviour
                         workTable[(int)SixSides.Right, 0, i] = dataTable[(int)SixSides.Front, 0, i];
                         workTable[(int)SixSides.Back, 0, i] = dataTable[(int)SixSides.Right, 0, i];
                         workTable[(int)SixSides.Left, 0, i] = dataTable[(int)SixSides.Back, 0, i];
+                    }
+                    // オブジェクトの回転アニメーション
+                    while (true)
+                    {
+                        const int y = 2;
+                        // タイム加算
+                        _time += Time.deltaTime;
+                        // アニメーションの終了
+                        if (_time > duration)
+                        {
+                            // 回転と位置をリセット
+                            for (int x = 0; x < cubeLength; x++)
+                                for (int z = 0; z < cubeLength; z++)
+                                {
+                                    cubes[x, y, z].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                                    cubes[x, y, z].transform.localPosition = new Vector3(x - 1, y - 1, z - 1);
+                                }
+                            break;
+                        }
+                        // (0,2,0)~(2,2,2)
+                        for (int x = 0; x < cubeLength; x++)
+                            for (int z = 0; z < cubeLength; z++)
+                                cubes[x, y, z].transform.RotateAround(
+                                    cubes[1, y, 1].transform.position,
+                                    transform.up,// 全体（Managerの上方向
+                                    -deg / duration * Time.deltaTime);
+                        yield return null;
                     }
                     break;
                 }
@@ -244,11 +307,38 @@ public class PuzzleManager : MonoBehaviour
                         workTable[(int)SixSides.Right, 2, i] = dataTable[(int)SixSides.Back, 2, i];
                         workTable[(int)SixSides.Back, 2, i] = dataTable[(int)SixSides.Left, 2, i];
                     }
+                    // オブジェクトの回転アニメーション
+                    while (true)
+                    {
+                        const int y = 0;
+                        // タイム加算
+                        _time += Time.deltaTime;
+                        // アニメーションの終了
+                        if (_time > duration)
+                        {
+                            // 回転と位置をリセット
+                            for (int x = 0; x < cubeLength; x++)
+                                for (int z = 0; z < cubeLength; z++)
+                                {
+                                    cubes[x, y, z].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                                    cubes[x, y, z].transform.localPosition = new Vector3(x - 1, y - 1, z - 1);
+                                }
+                            break;
+                        }
+                        // (0,0,0)~(2,0,2)
+                        for (int x = 0; x < cubeLength; x++)
+                            for (int z = 0; z < cubeLength; z++)
+                                cubes[x, y, z].transform.RotateAround(
+                                    cubes[1, y, 1].transform.position,
+                                    transform.up,// 全体（Managerの上方向
+                                    deg / duration * Time.deltaTime);
+                        yield return null;
+                    }
                     break;
                 }
             case RotationType.BottomLeft:
                 {
-                    // Top面を左回転
+                    // Bottom面を左回転
                     for (int i = 0; i < cubeLength; i++)
                         for (int j = 0; j < cubeLength; j++)
                             workTable[(int)SixSides.Bottom, i, j] = dataTable[(int)SixSides.Bottom, j, 2 - i];
@@ -259,6 +349,33 @@ public class PuzzleManager : MonoBehaviour
                         workTable[(int)SixSides.Right, 2, i] = dataTable[(int)SixSides.Front, 2, i];
                         workTable[(int)SixSides.Back, 2, i] = dataTable[(int)SixSides.Right, 2, i];
                         workTable[(int)SixSides.Left, 2, i] = dataTable[(int)SixSides.Back, 2, i];
+                    }
+                    // オブジェクトの回転アニメーション
+                    while (true)
+                    {
+                        const int y = 0;
+                        // タイム加算
+                        _time += Time.deltaTime;
+                        // アニメーションの終了
+                        if (_time > duration)
+                        {
+                            // 回転と位置をリセット
+                            for (int x = 0; x < cubeLength; x++)
+                                for (int z = 0; z < cubeLength; z++)
+                                {
+                                    cubes[x, y, z].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                                    cubes[x, y, z].transform.localPosition = new Vector3(x - 1, y - 1, z - 1);
+                                }
+                            break;
+                        }
+                        // (0,0,0)~(2,0,2)
+                        for (int x = 0; x < cubeLength; x++)
+                            for (int z = 0; z < cubeLength; z++)
+                                cubes[x, y, z].transform.RotateAround(
+                                    cubes[1, y, 1].transform.position,
+                                    transform.up,// 全体（Managerの上方向
+                                    -deg / duration * Time.deltaTime);
+                        yield return null;
                     }
                     break;
                 }
@@ -276,6 +393,33 @@ public class PuzzleManager : MonoBehaviour
                         workTable[(int)SixSides.Bottom, i, 2] = dataTable[(int)SixSides.Back, i, 0];
                         workTable[(int)SixSides.Back, i, 0] = dataTable[(int)SixSides.Top, i, 2];
                     }
+                    // オブジェクトの回転アニメーション
+                    while (true)
+                    {
+                        const int x = 2;
+                        // タイム加算
+                        _time += Time.deltaTime;
+                        // アニメーションの終了
+                        if (_time > duration)
+                        {
+                            // 回転と位置をリセット
+                            for (int y = 0; y < cubeLength; y++)
+                                for (int z = 0; z < cubeLength; z++)
+                                {
+                                    cubes[x, y, z].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                                    cubes[x, y, z].transform.localPosition = new Vector3(x - 1, y - 1, z - 1);
+                                }
+                            break;
+                        }
+                        // (2,0,0)~(2,2,2)
+                        for (int y = 0; y < cubeLength; y++)
+                            for (int z = 0; z < cubeLength; z++)
+                                cubes[x, y, z].transform.RotateAround(
+                                    cubes[x, 1, 1].transform.position,
+                                    transform.right,
+                                    deg / duration * Time.deltaTime);
+                        yield return null;
+                    }
                     break;
                 }
             case RotationType.RightLeft:
@@ -291,6 +435,33 @@ public class PuzzleManager : MonoBehaviour
                         workTable[(int)SixSides.Bottom, i, 2] = dataTable[(int)SixSides.Front, i, 2];
                         workTable[(int)SixSides.Back, i, 0] = dataTable[(int)SixSides.Bottom, i, 2];
                         workTable[(int)SixSides.Top, i, 2] = dataTable[(int)SixSides.Back, i, 0];
+                    }
+                    // オブジェクトの回転アニメーション
+                    while (true)
+                    {
+                        const int x = 2;
+                        // タイム加算
+                        _time += Time.deltaTime;
+                        // アニメーションの終了
+                        if (_time > duration)
+                        {
+                            // 回転と位置をリセット
+                            for (int y = 0; y < cubeLength; y++)
+                                for (int z = 0; z < cubeLength; z++)
+                                {
+                                    cubes[x, y, z].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                                    cubes[x, y, z].transform.localPosition = new Vector3(x - 1, y - 1, z - 1);
+                                }
+                            break;
+                        }
+                        // (2,0,0)~(2,2,2)
+                        for (int y = 0; y < cubeLength; y++)
+                            for (int z = 0; z < cubeLength; z++)
+                                cubes[x, y, z].transform.RotateAround(
+                                    cubes[x, 1, 1].transform.position,
+                                    transform.right,
+                                    -deg / duration * Time.deltaTime);
+                        yield return null;
                     }
                     break;
                 }
@@ -308,6 +479,33 @@ public class PuzzleManager : MonoBehaviour
                         workTable[(int)SixSides.Back, i, 2] = dataTable[(int)SixSides.Bottom, i, 0];
                         workTable[(int)SixSides.Top, i, 0] = dataTable[(int)SixSides.Back, i, 2];
                     }
+                    // オブジェクトの回転アニメーション
+                    while (true)
+                    {
+                        const int x = 0;
+                        // タイム加算
+                        _time += Time.deltaTime;
+                        // アニメーションの終了
+                        if (_time > duration)
+                        {
+                            // 回転と位置をリセット
+                            for (int y = 0; y < cubeLength; y++)
+                                for (int z = 0; z < cubeLength; z++)
+                                {
+                                    cubes[x, y, z].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                                    cubes[x, y, z].transform.localPosition = new Vector3(x - 1, y - 1, z - 1);
+                                }
+                            break;
+                        }
+                        // (0,0,0)~(0,2,2)
+                        for (int y = 0; y < cubeLength; y++)
+                            for (int z = 0; z < cubeLength; z++)
+                                cubes[x, y, z].transform.RotateAround(
+                                    cubes[x, 1, 1].transform.position,
+                                    transform.right,
+                                    -deg / duration * Time.deltaTime);
+                        yield return null;
+                    }
                     break;
                 }
             case RotationType.LeftLeft:
@@ -323,6 +521,33 @@ public class PuzzleManager : MonoBehaviour
                         workTable[(int)SixSides.Front, i, 0] = dataTable[(int)SixSides.Bottom, i, 0];
                         workTable[(int)SixSides.Bottom, i, 0] = dataTable[(int)SixSides.Back, i, 2];
                         workTable[(int)SixSides.Back, i, 2] = dataTable[(int)SixSides.Top, i, 0];
+                    }
+                    // オブジェクトの回転アニメーション
+                    while (true)
+                    {
+                        const int x = 0;
+                        // タイム加算
+                        _time += Time.deltaTime;
+                        // アニメーションの終了
+                        if (_time > duration)
+                        {
+                            // 回転と位置をリセット
+                            for (int y = 0; y < cubeLength; y++)
+                                for (int z = 0; z < cubeLength; z++)
+                                {
+                                    cubes[x, y, z].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                                    cubes[x, y, z].transform.localPosition = new Vector3(x - 1, y - 1, z - 1);
+                                }
+                            break;
+                        }
+                        // (0,0,0)~(0,2,2)
+                        for (int y = 0; y < cubeLength; y++)
+                            for (int z = 0; z < cubeLength; z++)
+                                cubes[x, y, z].transform.RotateAround(
+                                    cubes[x, 1, 1].transform.position,
+                                    transform.right,
+                                    deg / duration * Time.deltaTime);
+                        yield return null;
                     }
                     break;
                 }
@@ -340,6 +565,33 @@ public class PuzzleManager : MonoBehaviour
                         workTable[(int)SixSides.Bottom, 0, i] = dataTable[(int)SixSides.Right, 2 - i, 0];
                         workTable[(int)SixSides.Right, 2 - i, 0] = dataTable[(int)SixSides.Top, 2, i];
                     }
+                    // オブジェクトの回転アニメーション
+                    while (true)
+                    {
+                        const int z = 0;
+                        // タイム加算
+                        _time += Time.deltaTime;
+                        // アニメーションの終了
+                        if (_time > duration)
+                        {
+                            // 回転と位置をリセット
+                            for (int x = 0; x < cubeLength; x++)
+                                for (int y = 0; y < cubeLength; y++)
+                                {
+                                    cubes[x, y, z].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                                    cubes[x, y, z].transform.localPosition = new Vector3(x - 1, y - 1, z - 1);
+                                }
+                            break;
+                        }
+                        // (0,0,0)~(2,2,0)
+                        for (int x = 0; x < cubeLength; x++)
+                            for (int y = 0; y < cubeLength; y++)
+                                cubes[x, y, z].transform.RotateAround(
+                                    cubes[1, 1, z].transform.position,
+                                    transform.forward,
+                                    -deg / duration * Time.deltaTime);
+                        yield return null;
+                    }
                     break;
                 }
             case RotationType.FrontLeft:
@@ -355,6 +607,33 @@ public class PuzzleManager : MonoBehaviour
                         workTable[(int)SixSides.Bottom, 0, i] = dataTable[(int)SixSides.Left, 2 - i, 2];
                         workTable[(int)SixSides.Right, 2 - i, 0] = dataTable[(int)SixSides.Bottom, 0, i];
                         workTable[(int)SixSides.Top, 2, i] = dataTable[(int)SixSides.Right, 2 - i, 0];
+                    }
+                    // オブジェクトの回転アニメーション
+                    while (true)
+                    {
+                        const int z = 0;
+                        // タイム加算
+                        _time += Time.deltaTime;
+                        // アニメーションの終了
+                        if (_time > duration)
+                        {
+                            // 回転と位置をリセット
+                            for (int x = 0; x < cubeLength; x++)
+                                for (int y = 0; y < cubeLength; y++)
+                                {
+                                    cubes[x, y, z].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                                    cubes[x, y, z].transform.localPosition = new Vector3(x - 1, y - 1, z - 1);
+                                }
+                            break;
+                        }
+                        // (0,0,0)~(2,2,0)
+                        for (int x = 0; x < cubeLength; x++)
+                            for (int y = 0; y < cubeLength; y++)
+                                cubes[x, y, z].transform.RotateAround(
+                                    cubes[1, 1, z].transform.position,
+                                    transform.forward,
+                                    deg / duration * Time.deltaTime);
+                        yield return null;
                     }
                     break;
                 }
@@ -372,6 +651,33 @@ public class PuzzleManager : MonoBehaviour
                         workTable[(int)SixSides.Left, 2 - i, 0] = dataTable[(int)SixSides.Top, 0, i];
                         workTable[(int)SixSides.Top, 0, i] = dataTable[(int)SixSides.Right, i, 2];
                     }
+                    // オブジェクトの回転アニメーション
+                    while (true)
+                    {
+                        const int z = 2;
+                        // タイム加算
+                        _time += Time.deltaTime;
+                        // アニメーションの終了
+                        if (_time > duration)
+                        {
+                            // 回転と位置をリセット
+                            for (int x = 0; x < cubeLength; x++)
+                                for (int y = 0; y < cubeLength; y++)
+                                {
+                                    cubes[x, y, z].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                                    cubes[x, y, z].transform.localPosition = new Vector3(x - 1, y - 1, z - 1);
+                                }
+                            break;
+                        }
+                        // (0,0,2)~(2,2,2)
+                        for (int x = 0; x < cubeLength; x++)
+                            for (int y = 0; y < cubeLength; y++)
+                                cubes[x, y, z].transform.RotateAround(
+                                    cubes[1, 1, z].transform.position,
+                                    transform.forward,
+                                    deg / duration * Time.deltaTime);
+                        yield return null;
+                    }
                     break;
                 }
             case RotationType.BackLeft:
@@ -388,6 +694,33 @@ public class PuzzleManager : MonoBehaviour
                         workTable[(int)SixSides.Top, 0, i] = dataTable[(int)SixSides.Left, 2 - i, 0];
                         workTable[(int)SixSides.Right, i, 2] = dataTable[(int)SixSides.Top, 0, i];
                     }
+                    // オブジェクトの回転アニメーション
+                    while (true)
+                    {
+                        const int z = 2;
+                        // タイム加算
+                        _time += Time.deltaTime;
+                        // アニメーションの終了
+                        if (_time > duration)
+                        {
+                            // 回転と位置をリセット
+                            for (int x = 0; x < cubeLength; x++)
+                                for (int y = 0; y < cubeLength; y++)
+                                {
+                                    cubes[x, y, z].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                                    cubes[x, y, z].transform.localPosition = new Vector3(x - 1, y - 1, z - 1);
+                                }
+                            break;
+                        }
+                        // (0,0,2)~(2,2,2)
+                        for (int x = 0; x < cubeLength; x++)
+                            for (int y = 0; y < cubeLength; y++)
+                                cubes[x, y, z].transform.RotateAround(
+                                    cubes[1, 1, z].transform.position,
+                                    transform.forward,
+                                    -deg / duration * Time.deltaTime);
+                        yield return null;
+                    }
                     break;
                 }
             case RotationType.CenterRightForward:
@@ -400,6 +733,33 @@ public class PuzzleManager : MonoBehaviour
                         workTable[(int)SixSides.Back, 2 - i, 1] = dataTable[(int)SixSides.Bottom, i, 1];
                         workTable[(int)SixSides.Bottom, i, 1] = dataTable[(int)SixSides.Front, i, 1];
                         workTable[(int)SixSides.Front, i, 1] = dataTable[(int)SixSides.Top, i, 1];
+                    }
+                    // オブジェクトの回転アニメーション
+                    while (true)
+                    {
+                        const int x = 1;
+                        // タイム加算
+                        _time += Time.deltaTime;
+                        // アニメーションの終了
+                        if (_time > duration)
+                        {
+                            // 回転と位置をリセット
+                            for (int y = 0; y < cubeLength; y++)
+                                for (int z = 0; z < cubeLength; z++)
+                                {
+                                    cubes[x, y, z].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                                    cubes[x, y, z].transform.localPosition = new Vector3(x - 1, y - 1, z - 1);
+                                }
+                            break;
+                        }
+                        // (1,0,0)~(1,2,2)
+                        for (int y = 0; y < cubeLength; y++)
+                            for (int z = 0; z < cubeLength; z++)
+                                cubes[x, y, z].transform.RotateAround(
+                                    cubes[x, 1, 1].transform.position,
+                                    transform.right,
+                                    -deg / duration * Time.deltaTime);
+                        yield return null;
                     }
                     break;
                 }
@@ -414,6 +774,33 @@ public class PuzzleManager : MonoBehaviour
                         workTable[(int)SixSides.Front, i, 1] = dataTable[(int)SixSides.Bottom, i, 1];
                         workTable[(int)SixSides.Top, i, 1] = dataTable[(int)SixSides.Front, i, 1];
                     }
+                    // オブジェクトの回転アニメーション
+                    while (true)
+                    {
+                        const int x = 1;
+                        // タイム加算
+                        _time += Time.deltaTime;
+                        // アニメーションの終了
+                        if (_time > duration)
+                        {
+                            // 回転と位置をリセット
+                            for (int y = 0; y < cubeLength; y++)
+                                for (int z = 0; z < cubeLength; z++)
+                                {
+                                    cubes[x, y, z].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                                    cubes[x, y, z].transform.localPosition = new Vector3(x - 1, y - 1, z - 1);
+                                }
+                            break;
+                        }
+                        // (1,0,0)~(1,2,2)
+                        for (int y = 0; y < cubeLength; y++)
+                            for (int z = 0; z < cubeLength; z++)
+                                cubes[x, y, z].transform.RotateAround(
+                                    cubes[x, 1, 1].transform.position,
+                                    transform.right,
+                                    deg / duration * Time.deltaTime);
+                        yield return null;
+                    }
                     break;
                 }
             case RotationType.CenterLeftForward:
@@ -426,6 +813,33 @@ public class PuzzleManager : MonoBehaviour
                         workTable[(int)SixSides.Top, 1, i] = dataTable[(int)SixSides.Right, i, 1];
                         workTable[(int)SixSides.Right, i, 1] = dataTable[(int)SixSides.Bottom, 1, 2 - i];
                         workTable[(int)SixSides.Bottom, 1, 2 - i] = dataTable[(int)SixSides.Left, 2 - i, 1];
+                    }
+                    // オブジェクトの回転アニメーション
+                    while (true)
+                    {
+                        const int z = 1;
+                        // タイム加算
+                        _time += Time.deltaTime;
+                        // アニメーションの終了
+                        if (_time > duration)
+                        {
+                            // 回転と位置をリセット
+                            for (int x = 0; x < cubeLength; x++)
+                                for (int y = 0; y < cubeLength; y++)
+                                {
+                                    cubes[x, y, z].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                                    cubes[x, y, z].transform.localPosition = new Vector3(x - 1, y - 1, z - 1);
+                                }
+                            break;
+                        }
+                        // (0,0,1)~(2,2,1)
+                        for (int x = 0; x < cubeLength; x++)
+                            for (int y = 0; y < cubeLength; y++)
+                                cubes[x, y, z].transform.RotateAround(
+                                    cubes[1, 1, z].transform.position,
+                                    transform.forward,
+                                    deg / duration * Time.deltaTime);
+                        yield return null;
                     }
                     break;
                 }
@@ -440,6 +854,33 @@ public class PuzzleManager : MonoBehaviour
                         workTable[(int)SixSides.Bottom, 1, 2 - i] = dataTable[(int)SixSides.Right, i, 1];
                         workTable[(int)SixSides.Left, 2 - i, 1] = dataTable[(int)SixSides.Bottom, 1, 2 - i];
                     }
+                    // オブジェクトの回転アニメーション
+                    while (true)
+                    {
+                        const int z = 1;
+                        // タイム加算
+                        _time += Time.deltaTime;
+                        // アニメーションの終了
+                        if (_time > duration)
+                        {
+                            // 回転と位置をリセット
+                            for (int x = 0; x < cubeLength; x++)
+                                for (int y = 0; y < cubeLength; y++)
+                                {
+                                    cubes[x, y, z].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                                    cubes[x, y, z].transform.localPosition = new Vector3(x - 1, y - 1, z - 1);
+                                }
+                            break;
+                        }
+                        // (0,0,1)~(2,2,1)
+                        for (int x = 0; x < cubeLength; x++)
+                            for (int y = 0; y < cubeLength; y++)
+                                cubes[x, y, z].transform.RotateAround(
+                                    cubes[1, 1, z].transform.position,
+                                    transform.forward,
+                                    -deg / duration * Time.deltaTime);
+                        yield return null;
+                    }
                     break;
                 }
             case RotationType.CenterRightSlice:
@@ -453,6 +894,33 @@ public class PuzzleManager : MonoBehaviour
                         workTable[(int)SixSides.Back, 1, i] = dataTable[(int)SixSides.Right, 1, i];
                         workTable[(int)SixSides.Right, 1, i] = dataTable[(int)SixSides.Front, 1, i];
                     }
+                    // オブジェクトの回転アニメーション
+                    while (true)
+                    {
+                        const int y = 1;
+                        // タイム加算
+                        _time += Time.deltaTime;
+                        // アニメーションの終了
+                        if (_time > duration)
+                        {
+                            // 回転と位置をリセット
+                            for (int x = 0; x < cubeLength; x++)
+                                for (int z = 0; z < cubeLength; z++)
+                                {
+                                    cubes[x, y, z].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                                    cubes[x, y, z].transform.localPosition = new Vector3(x - 1, y - 1, z - 1);
+                                }
+                            break;
+                        }
+                        // (0,1,0)~(2,1,2)
+                        for (int x = 0; x < cubeLength; x++)
+                            for (int z = 0; z < cubeLength; z++)
+                                cubes[x, y, z].transform.RotateAround(
+                                    cubes[1, y, 1].transform.position,
+                                    transform.up,// 全体（Managerの上方向
+                                    -deg / duration * Time.deltaTime);
+                        yield return null;
+                    }
                     break;
                 }
             case RotationType.CenterLeftSlice:
@@ -465,6 +933,33 @@ public class PuzzleManager : MonoBehaviour
                         workTable[(int)SixSides.Back, 1, i] = dataTable[(int)SixSides.Left, 1, i];
                         workTable[(int)SixSides.Right, 1, i] = dataTable[(int)SixSides.Back, 1, i];
                         workTable[(int)SixSides.Front, 1, i] = dataTable[(int)SixSides.Right, 1, i];
+                    }
+                    // オブジェクトの回転アニメーション
+                    while (true)
+                    {
+                        const int y = 1;
+                        // タイム加算
+                        _time += Time.deltaTime;
+                        // アニメーションの終了
+                        if (_time > duration)
+                        {
+                            // 回転と位置をリセット
+                            for (int x = 0; x < cubeLength; x++)
+                                for (int z = 0; z < cubeLength; z++)
+                                {
+                                    cubes[x, y, z].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                                    cubes[x, y, z].transform.localPosition = new Vector3(x - 1, y - 1, z - 1);
+                                }
+                            break;
+                        }
+                        // (0,1,0)~(2,1,2)
+                        for (int x = 0; x < cubeLength; x++)
+                            for (int z = 0; z < cubeLength; z++)
+                                cubes[x, y, z].transform.RotateAround(
+                                    cubes[1, y, 1].transform.position,
+                                    transform.up,// 全体（Managerの上方向
+                                    deg / duration * Time.deltaTime);
+                        yield return null;
                     }
                     break;
                 }
@@ -590,7 +1085,7 @@ public class PuzzleManager : MonoBehaviour
                                         (startIndex.x == 0) ? (int)RotationType.LeftRight :
                                         (startIndex.x == 1) ? (int)RotationType.CenterRightForward :
                                         (int)RotationType.RightLeft;
-                            break;     
+                            break;
                         case "Back":
                             rotationType =
                                         (startIndex.x == 0) ? (int)RotationType.LeftLeft :
@@ -835,7 +1330,7 @@ public class PuzzleManager : MonoBehaviour
                                     rotationType =
                                         (startIndex.y == 0) ? (int)RotationType.BottomRight :
                                         (startIndex.y == 1) ? (int)RotationType.CenterLeftSlice :
-                                        (int)RotationType.TopRight;                                
+                                        (int)RotationType.TopRight;
                                 else if (difIndex == new Vector3Int(-1, 0, 0))
                                     rotationType =
                                         (startIndex.y == 0) ? (int)RotationType.BottomLeft :
@@ -845,7 +1340,7 @@ public class PuzzleManager : MonoBehaviour
                                     rotationType =
                                         (startIndex.x == 0) ? (int)RotationType.LeftRight :
                                         (startIndex.x == 1) ? (int)RotationType.CenterRightForward :
-                                        (int)RotationType.RightLeft;                               
+                                        (int)RotationType.RightLeft;
                                 else if (difIndex == new Vector3Int(0, -1, 0))
                                     rotationType =
                                        (startIndex.x == 0) ? (int)RotationType.LeftLeft :
@@ -883,7 +1378,9 @@ public class PuzzleManager : MonoBehaviour
         }
         // 回転タイプが決定していれば回転させる
         if (rotationType != -1)
-            Rotation((RotationType)rotationType);
+            StartCoroutine(Rotation((RotationType)rotationType));
+
+        Debug.Log((RotationType)rotationType);
 
         // 回転させたらクリック開始キャッシュをクリア
         clickStart = null;
