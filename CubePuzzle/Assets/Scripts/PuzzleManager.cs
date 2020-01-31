@@ -155,6 +155,7 @@ public class PuzzleManager : MonoBehaviour
         DrawData();
     }
 
+    // シャッフル中に何度もシャッフルを呼び出さないようにフラグ管理
     bool inShuffle = false;
 
     /// <summary>
