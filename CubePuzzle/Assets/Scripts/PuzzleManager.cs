@@ -298,7 +298,7 @@ public class PuzzleManager : MonoBehaviour
                     // Bottom面を右回転
                     for (int i = 0; i < cubeLength; i++)
                         for (int j = 0; j < cubeLength; j++)
-                            workTable[(int)SixSides.Bottom, i, j] = dataTable[(int)SixSides.Bottom, 2 - j, i];
+                            workTable[(int)SixSides.Bottom, i, j] = dataTable[(int)SixSides.Bottom, j, 2 - i];
                     // 側面の移動
                     for (int i = 0; i < cubeLength; i++)
                     {
@@ -341,7 +341,7 @@ public class PuzzleManager : MonoBehaviour
                     // Bottom面を左回転
                     for (int i = 0; i < cubeLength; i++)
                         for (int j = 0; j < cubeLength; j++)
-                            workTable[(int)SixSides.Bottom, i, j] = dataTable[(int)SixSides.Bottom, j, 2 - i];
+                            workTable[(int)SixSides.Bottom, i, j] = dataTable[(int)SixSides.Bottom, 2 - j, i];
                     // 側面の移動
                     for (int i = 0; i < cubeLength; i++)
                     {
@@ -476,8 +476,8 @@ public class PuzzleManager : MonoBehaviour
                     {
                         workTable[(int)SixSides.Front, i, 0] = dataTable[(int)SixSides.Top, i, 0];
                         workTable[(int)SixSides.Bottom, i, 0] = dataTable[(int)SixSides.Front, i, 0];
-                        workTable[(int)SixSides.Back, i, 2] = dataTable[(int)SixSides.Bottom, i, 0];
-                        workTable[(int)SixSides.Top, i, 0] = dataTable[(int)SixSides.Back, i, 2];
+                        workTable[(int)SixSides.Back, 2 - i, 2] = dataTable[(int)SixSides.Bottom, i, 0];
+                        workTable[(int)SixSides.Top, i, 0] = dataTable[(int)SixSides.Back, 2 - i, 2];
                     }
                     // オブジェクトの回転アニメーション
                     while (true)
@@ -519,8 +519,8 @@ public class PuzzleManager : MonoBehaviour
                     {
                         workTable[(int)SixSides.Top, i, 0] = dataTable[(int)SixSides.Front, i, 0];
                         workTable[(int)SixSides.Front, i, 0] = dataTable[(int)SixSides.Bottom, i, 0];
-                        workTable[(int)SixSides.Bottom, i, 0] = dataTable[(int)SixSides.Back, i, 2];
-                        workTable[(int)SixSides.Back, i, 2] = dataTable[(int)SixSides.Top, i, 0];
+                        workTable[(int)SixSides.Bottom, i, 0] = dataTable[(int)SixSides.Back, 2 - i, 2];
+                        workTable[(int)SixSides.Back, 2 - i, 2] = dataTable[(int)SixSides.Top, i, 0];
                     }
                     // オブジェクトの回転アニメーション
                     while (true)
@@ -561,9 +561,9 @@ public class PuzzleManager : MonoBehaviour
                     for (int i = 0; i < cubeLength; i++)
                     {
                         workTable[(int)SixSides.Top, 2, i] = dataTable[(int)SixSides.Left, 2 - i, 2];
-                        workTable[(int)SixSides.Left, 2 - i, 2] = dataTable[(int)SixSides.Bottom, 0, i];
-                        workTable[(int)SixSides.Bottom, 0, i] = dataTable[(int)SixSides.Right, 2 - i, 0];
-                        workTable[(int)SixSides.Right, 2 - i, 0] = dataTable[(int)SixSides.Top, 2, i];
+                        workTable[(int)SixSides.Left, 2 - i, 2] = dataTable[(int)SixSides.Bottom, 0, 2 - i];
+                        workTable[(int)SixSides.Bottom, 0, 2 - i] = dataTable[(int)SixSides.Right, i, 0];
+                        workTable[(int)SixSides.Right, i, 0] = dataTable[(int)SixSides.Top, 2, i];
                     }
                     // オブジェクトの回転アニメーション
                     while (true)
@@ -604,9 +604,9 @@ public class PuzzleManager : MonoBehaviour
                     for (int i = 0; i < cubeLength; i++)
                     {
                         workTable[(int)SixSides.Left, 2 - i, 2] = dataTable[(int)SixSides.Top, 2, i];
-                        workTable[(int)SixSides.Bottom, 0, i] = dataTable[(int)SixSides.Left, 2 - i, 2];
-                        workTable[(int)SixSides.Right, 2 - i, 0] = dataTable[(int)SixSides.Bottom, 0, i];
-                        workTable[(int)SixSides.Top, 2, i] = dataTable[(int)SixSides.Right, 2 - i, 0];
+                        workTable[(int)SixSides.Bottom, 0, 2 - i] = dataTable[(int)SixSides.Left, 2 - i, 2];
+                        workTable[(int)SixSides.Right, i, 0] = dataTable[(int)SixSides.Bottom, 0, 2 - i];
+                        workTable[(int)SixSides.Top, 2, i] = dataTable[(int)SixSides.Right, i, 0];
                     }
                     // オブジェクトの回転アニメーション
                     while (true)
