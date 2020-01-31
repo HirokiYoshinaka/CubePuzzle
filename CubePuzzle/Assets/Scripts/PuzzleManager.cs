@@ -476,9 +476,132 @@ public class PuzzleManager : MonoBehaviour
         DrawData();
     }
 
+    // キャッシュ用
+    GameObject clickStart = null;
+
     // Update is called once per frame
     void Update()
     {
+        // クリックされたとき
+        if (Input.GetMouseButtonDown(0))
+        {
+            // rayで当たり判定
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit))
+                clickStart = hit.collider.gameObject;
+        }
+        // クリック中（パフォーマンス的に不安な書き方ではあるが、今回はこれくらいしか重い処理はないのでヨシ
+        else if (Input.GetMouseButton(0))
+        {
+            // 選択がない場合return
+            if (clickStart == null)
+                return;
+            // rayで当たり判定
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit))
+                // クリック終了時に当たっていたオブジェクトを取得して回転判定に送る
+                InputRotation(hit.collider.gameObject);
+            // 空中で離したときも回転させたいが今はとりあえず置いとく
+        }
+    }
 
+    void InputRotation(GameObject clickEnd)
+    {
+        // 同じところで離していたら回転させない
+        if (clickStart == clickEnd)
+            return;
+        // 親GameObjectを取得
+        var start = clickStart.transform.parent.gameObject;
+        var end = clickEnd.transform.parent.gameObject;
+        // Indexをリスト照合して取得
+        var startIndex = new Vector3Int(-1, -1, -1);
+        var endIndex = new Vector3Int(-1, -1, -1);
+        for (int x = 0; x < cubeLength; x++)
+            for (int y = 0; y < cubeLength; y++)
+                for (int z = 0; z < cubeLength; z++)
+                {
+                    if (start == cubes[x, y, z])
+                        startIndex = new Vector3Int(x, y, z);
+                    if (end == cubes[x, y, z])
+                        endIndex = new Vector3Int(x, y, z);
+                }
+        // 差分を取得
+        var difIndex = endIndex - startIndex;
+        Debug.Log(difIndex);
+        // それぞれの面の名前を取得
+        var startSideName = clickStart.name;
+        var endSideName = clickEnd.name;
+        //Debug.Log(startSideName);
+        //Debug.Log(endSideName);
+
+        int rotationType = -1;
+        // start面とend面それぞれについて分岐する（しか思いつきませんでした
+        switch (startSideName)
+        {
+            case "Top":
+                {
+                    switch (endSideName)
+                    {
+                        case "Top":
+                            // 方向を判定したら軸を判定する
+                            if (difIndex == new Vector3Int(1, 0, 0))
+                                rotationType =
+                                    (startIndex.z == 0) ? (int)RotationType.FrontRight :
+                                    (startIndex.z == 1) ? (int)RotationType.CenterRightBack :
+                                    (int)RotationType.BackLeft;
+                            else if (difIndex == new Vector3Int(-1, 0, 0))
+                                rotationType =
+                                    (startIndex.z == 0) ? (int)RotationType.FrontLeft :
+                                    (startIndex.z == 1) ? (int)RotationType.CenterLeftForward :
+                                    (int)RotationType.BackRight;
+                            else if (difIndex == new Vector3Int(0, 0, 1))
+                                rotationType =
+                                    (startIndex.x == 0) ? (int)RotationType.LeftLeft :
+                                    (startIndex.x == 1) ? (int)RotationType.CenterLeftBack :
+                                    (int)RotationType.RightRight;
+                            else if (difIndex == new Vector3Int(0, 0, -1))
+                                rotationType =
+                                    (startIndex.x == 0) ? (int)RotationType.LeftRight :
+                                    (startIndex.x == 1) ? (int)RotationType.CenterRightForward :
+                                    (int)RotationType.RightLeft;
+                            break;
+                        case "Right":
+                            break;
+                        case "Left":
+                            break;
+                        case "Front":
+                            break;
+                        case "Back":
+                            break;
+                    }
+                    break;
+                }
+            case "Bottom":
+                break;
+            case "Right":
+                break;
+            case "Left":
+                break;
+            case "Front":
+                break;
+            case "Back":
+                break;
+        }
+        if (rotationType != -1)
+            Rotation((RotationType)rotationType);
+
+        // 角の場合名前で判断する
+        if (difIndex == new Vector3Int(0, 0, 0)) { }
+        else if (difIndex == new Vector3Int(1, 0, 0)) { }
+        else if (difIndex == new Vector3Int(-1, 0, 0)) { }
+        else if (difIndex == new Vector3Int(0, 1, 0)) { }
+        else if (difIndex == new Vector3Int(0, -1, 0)) { }
+        else if (difIndex == new Vector3Int(0, 0, 1)) { }
+        else if (difIndex == new Vector3Int(0, 0, -1)) { }
+
+        // 回転させたらクリック開始キャッシュをクリア
+        clickStart = null;
     }
 }
