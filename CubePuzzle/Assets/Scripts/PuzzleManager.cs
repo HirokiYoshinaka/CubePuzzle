@@ -1043,7 +1043,6 @@ public class PuzzleManager : MonoBehaviour
                 }
         // 差分を取得
         var difIndex = endIndex - startIndex;
-        Debug.Log(difIndex);
         // それぞれの面の名前を取得
         var startSideName = clickStart.name;
         var endSideName = clickEnd.name;
@@ -1394,8 +1393,6 @@ public class PuzzleManager : MonoBehaviour
         // 回転タイプが決定していれば回転させる
         if (rotationType != -1)
             StartCoroutine(Rotation((RotationType)rotationType));
-
-        Debug.Log((RotationType)rotationType);
 
         // 回転させたらクリック開始キャッシュをクリア
         clickStart = null;
