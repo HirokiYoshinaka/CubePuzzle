@@ -159,7 +159,7 @@ public class PuzzleManager : MonoBehaviour
     /// ランダムにシャッフルします
     /// </summary>
     /// <param name="count">回転させる回数</param>
-    IEnumerator RandomShuffle(int count = 100)
+    public IEnumerator RandomShuffle(int count = 100)
     {
         // シャッフル中にSE再生するとさすがにうるさかったのでミュートに
         audioSource.mute = true;
@@ -173,10 +173,11 @@ public class PuzzleManager : MonoBehaviour
     /// <summary>
     /// キューブを初期状態に戻します
     /// </summary>
-    void ResetCube()
+    public void ResetCube()
     {
         InitCubeData();
         DrawData();
+        audioSource.PlayOneShot(rotationSE);
     }
 
     /// <summary>
