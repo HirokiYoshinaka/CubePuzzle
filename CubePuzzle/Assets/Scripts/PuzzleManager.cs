@@ -155,18 +155,32 @@ public class PuzzleManager : MonoBehaviour
         DrawData();
     }
 
+    bool inShuffle = false;
+
+    /// <summary>
+    /// シャッフルを開始します（Buttonから呼び出す用
+    /// </summary>
+    /// <param name="count"></param>
+    public void StartRandomShuffle(int count = 100)
+    {
+        if (!inShuffle)
+            StartCoroutine(RandomShuffle(count));
+    }
+
     /// <summary>
     /// ランダムにシャッフルします
     /// </summary>
     /// <param name="count">回転させる回数</param>
-    public IEnumerator RandomShuffle(int count = 100)
+    IEnumerator RandomShuffle(int count = 100)
     {
+        inShuffle = true;
         // シャッフル中にSE再生するとさすがにうるさかったのでミュートに
         audioSource.mute = true;
         for (int i = 0; i < count; i++)
             yield return StartCoroutine(
                 Rotation((RotationType)Random.Range((int)RotationType.TopRight, (int)RotationType.CenterLeftSlice + 1),
                 0.05f));
+        inShuffle = false;
         audioSource.mute = false;
     }
 
