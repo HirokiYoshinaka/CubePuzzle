@@ -145,7 +145,7 @@ public class PuzzleManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
+        audioSource = gameObject.AddComponent<AudioSource>();
         rotationSE = Resources.Load("Sounds/go-piece1") as AudioClip;
         CreateCube();
         InitCubeData();
@@ -168,6 +168,15 @@ public class PuzzleManager : MonoBehaviour
                 Rotation((RotationType)Random.Range((int)RotationType.TopRight, (int)RotationType.CenterLeftSlice + 1),
                 0.05f));
         audioSource.mute = false;
+    }
+
+    /// <summary>
+    /// キューブを初期状態に戻します
+    /// </summary>
+    void ResetCube()
+    {
+        InitCubeData();
+        DrawData();
     }
 
     /// <summary>
